@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/x-icon" href="favicon.ico">
 <title>KATSEYE IS SIX</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <style>
 body {
   font-family: sans-serif;
@@ -48,27 +48,16 @@ button {
   font-size:20px;
   cursor:pointer;
 }
-#feed {
+#feed-container {
   max-width: 600px;
   margin: 0 auto;
+}
+.twitter-timeline {
+  border-radius: 6px;
   overflow: hidden;
-}
-.tweet {
-  background:white;
-  margin:10px 0;
-  padding:10px;
-  border-radius:6px;
-  opacity:0;
-  transform:translateY(20px);
-  transition: all 0.5s ease;
-}
-.tweet.show {
-  opacity:1;
-  transform:translateY(0);
-}
-.tweet strong {
-  display:block;
-  margin-bottom:4px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.5s ease, opacity 0.5s ease;
 }
 </style>
 </head>
@@ -83,58 +72,32 @@ button {
   </div>
 </div>
 
-<div id="feed"></div>
+<div id="feed-container">
+  <a class="twitter-timeline" data-theme="light" data-chrome="nofooter noborders" href="https://twitter.com/hashtag/WEWANTMANON?ref_src=twsrc%5Etfw">#WEWANTMANON Tweets</a>
+  <a class="twitter-timeline" data-theme="light" data-chrome="nofooter noborders" href="https://twitter.com/hashtag/JusticeForManon?ref_src=twsrc%5Etfw">#JusticeForManon Tweets</a>
+  <a class="twitter-timeline" data-theme="light" data-chrome="nofooter noborders" href="https://twitter.com/hashtag/BoycottForManon?ref_src=twsrc%5Etfw">#BoycottForManon Tweets</a>
+</div>
 
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script>
-const hashtags = ['WEWANTMANON','JusticeForManon','BoycottForManon'];
-const displayedTweets = {};
-const backendUrl = 'https://wewantmanon.vercel.app/api/tweets';
-
-// modal
+// modal functionality
 const modal = document.getElementById('modal');
 document.getElementById('infoBtn').onclick = () => modal.style.display = 'flex';
 document.querySelector('.close-btn').onclick = () => modal.style.display = 'none';
 window.onclick = e => { if(e.target==modal) modal.style.display='none'; }
 
-// fetch tweets and animate
-async function fetchTweets() {
-  for(const tag of hashtags){
-    try {
-      const res = await fetch(`${backendUrl}?hashtag=${tag}`);
-      const data = await res.json();
-      const tweets = data.data || [];
-      const users = {};
-      (data.includes?.users||[]).forEach(u => users[u.id]=u.username);
-
-      tweets.reverse().forEach(tweet => {
-        if(!displayedTweets[tweet.id]){
-          displayedTweets[tweet.id] = true;
-
-          const div = document.createElement('div');
-          div.className='tweet';
-          div.innerHTML = `<strong>@${users[tweet.author_id] || 'unknown'}</strong>${tweet.text}<br><small>${new Date(tweet.created_at).toLocaleString()}</small>`;
-          document.getElementById('feed').prepend(div);
-
-          setTimeout(()=>div.classList.add('show'),50);
-        }
-      });
-    } catch(e){ console.error('Failed to fetch tweets', e); }
+// optional: animate iframes when they load
+const timelines = document.querySelectorAll('.twitter-timeline');
+timelines.forEach((t,i) => {
+  t.style.opacity = 0;
+  t.style.transform = 'translateY(20px)';
+  t.onload = () => {
+    setTimeout(() => {
+      t.style.opacity = 1;
+      t.style.transform = 'translateY(0)';
+    }, 100*i);
   }
-}
-
-// initial fetch
-fetchTweets();
-// refresh every 15 seconds
-setInterval(fetchTweets,15000);
-
-// auto-scroll effect
-const feedContainer = document.getElementById('feed');
-setInterval(()=>{
-  if(feedContainer.firstChild){
-    const first = feedContainer.firstChild;
-    feedContainer.appendChild(first);
-  }
-},5000);
+});
 </script>
 
 </body>
