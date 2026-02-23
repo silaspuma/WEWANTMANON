@@ -87,7 +87,7 @@ button {
 <script>
 const hashtags = ['WEWANTMANON','JusticeForManon','BoycottForManon'];
 const displayedTweets = {};
-const backendUrl = 'https://wewantmanon.vercel.app/api/tweets'; // your domain
+const backendUrl = 'https://wewantmanon.com/api/tweets';
 
 // modal functionality
 const modal = document.getElementById('modal');
@@ -111,10 +111,9 @@ async function fetchTweets() {
 
           const div = document.createElement('div');
           div.className='tweet';
-          div.innerHTML = `<strong>@${users[tweet.author_id] || 'unknown'}</strong>${tweet.text}<small>${new Date(tweet.created_at).toLocaleString()}</small>`;
+          div.innerHTML = `<strong>@${users[tweet.author_id] || 'unknown'}</strong>${tweet.text}<br><small>${new Date(tweet.created_at).toLocaleString()}</small>`;
           document.getElementById('feed').prepend(div);
 
-          // animate in
           setTimeout(()=>div.classList.add('show'),50);
         }
       });
