@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manon Boycott Feed</title>
+<style>
+body {
+  font-family: sans-serif;
+  background: #f7f7f7;
+  text-align: center;
+  padding: 20px;
+}
+button {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left:0; top:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  max-width:500px;
+  position:relative;
+}
+.modal-content img {
+  width:100%;
+  border-radius:8px;
+}
+.close-btn {
+  position:absolute;
+  top:10px; right:15px;
+  font-size:20px;
+  cursor:pointer;
+}
+.tweet {
+  background:white;
+  margin:10px auto;
+  padding:10px;
+  max-width:600px;
+  border-radius:6px;
+  opacity:0;
+  transform:translateY(20px);
+  transition: all 0.5s ease;
+}
+.tweet.show {
+  opacity:1;
+  transform:translateY(0);
+}
+.tweet strong {
+  display:block;
+  margin-bottom:4px;
+}
+</style>
+</head>
+<body>
+
+<button id="infoBtn">view boycott information</button>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <img src="boycott.png" alt="Boycott Info">
+  </div>
+</div>
+
+<div id="feed"></div>
+
+<script>
+const hashtags = ['WEWANTMANON','JusticeForManon','BoycottForManon'];
+const displayedTweets = {};
+const backendUrl = 'https://your-vercel-app.vercel.app/api/tweets'; // replace with your vercel url
+
+// modal
+const modal = document.getElementById('modal');
+document.getElementById('infoBtn').onclick = () => modal.style.display = 'flex';
+document.querySelector('.close-btn').onclick = () => modal.style.display = 'none';
+window.onclick = e => { if(e.target==modal) modal.style.display='none'; }
+
+async function fetchTweets() {
+  for(const tag of hashtags) {
+    const res = await fetch(`${backendUrl}?hashtag=${tag}`);
+    const data = await res.json();
+    const tweets = data.data || [];
+    const users = {};
+    (data.includes?.users||[]).forEach(u => users[u.id]=u.username);
+
+    tweets.reverse().forEach(tweet => {
+      if(!displayedTweets[tweet.id]){
+        displayedTweets[tweet.id] = true;
+
+        const div = document.createElement('div');
+        div.className='tweet';
+        div.innerHTML = `<strong>@${users[tweet.author_id] || 'unknown'}</strong>${tweet.text}<small>${new Date(tweet.created_at).toLocaleString()}</small>`;
+        document.getElementById('feed').prepend(div);
+
+        // animate in
+        setTimeout(()=>div.classList.add('show'),50);
+      }
+    });
+  }
+}
+
+// initial fetch
+fetchTweets();
+
+// fetch every 15s
+setInterval(fetchTweets,15000);
+</script>
+
+</body>
+</html>
