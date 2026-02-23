@@ -1,7 +1,7 @@
 // /api/tweets.js
 
 let sinceIds = {}; // tracks newest tweet per hashtag
-const BEARER_TOKEN = 'AAAAAAAAAAAAAAAAAAAAAOFC7wEAAAAA4UriTAyLQAfQ0+6sNpj8rtcMxfY=KUTCDMURdzhJRr9WNDHoI9IN45TEap7Ugbhun97RCgXX55YnBv';
+const BEARER_TOKEN = 'AAAAAAAAAAAAAAAAAAAAAOFC7wEAAAAAlxnMsOOFLALyBazNS%2BMEUTtYHiM%3D9Qu9CCYdowCeeZGr4GJ5Qpxp44LjfxsSSrbtX1vSWvSwXRXxMy';
 
 export default async function handler(req, res) {
   // allow requests from your domain
