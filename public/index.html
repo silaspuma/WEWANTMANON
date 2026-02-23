@@ -89,7 +89,7 @@ const hashtags = ['WEWANTMANON','JusticeForManon','BoycottForManon'];
 const displayedTweets = {};
 const backendUrl = 'https://wewantmanon.vercel.app/api/tweets';
 
-// modal functionality
+// modal
 const modal = document.getElementById('modal');
 document.getElementById('infoBtn').onclick = () => modal.style.display = 'flex';
 document.querySelector('.close-btn').onclick = () => modal.style.display = 'none';
@@ -123,7 +123,7 @@ async function fetchTweets() {
 
 // initial fetch
 fetchTweets();
-// fetch every 15 seconds
+// refresh every 15 seconds
 setInterval(fetchTweets,15000);
 
 // auto-scroll effect
