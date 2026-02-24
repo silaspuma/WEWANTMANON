@@ -37,24 +37,30 @@ font-size:15px;
 .feed{
 width:100%;
 display:flex;
-justify-content:center;
-padding-bottom:40px;
-flex-wrap:wrap;
+flex-direction:column;
+align-items:center;
 gap:12px;
+padding-bottom:40px;
 }
 
 /* tweet cards */
+
 .tweet{
-background:#111;
-padding:12px;
-border-radius:10px;
-max-width:600px;
 width:95%;
-animation:slidein 0.5s ease forwards;
+max-width:700px;
+background:#111;
+border-radius:12px;
+padding:14px;
+animation:slide 0.4s ease;
 }
 
-@keyframes slidein{
-from{transform:translateY(-30px);opacity:0}
+.tweet a{
+color:#1d9bf0;
+text-decoration:none;
+}
+
+@keyframes slide{
+from{transform:translateY(-20px);opacity:0}
 to{transform:translateY(0);opacity:1}
 }
 
@@ -113,9 +119,9 @@ background:#444;
 <button onclick="openEmail()">email template</button>
 </div>
 
-<div class="feed" id="nitterFeed">
-<p style="opacity:.6;text-align:center">loading tweets...</p>
-</div>
+<div class="feed" id="feed"></div>
+
+<script async src="https://platform.twitter.com/widgets.js"></script>
 
 <div class="modal" id="boycottModal">
 <div class="modal-content">
@@ -188,51 +194,44 @@ document.execCommand("copy")
 alert("email copied")
 }
 
-// fetch tweets from nitter.net rss
-async function loadNitter(){
+/* rss loader */
 
-const rss="https://nitter.net/search/rss?q=%23WEWANTMANON"
-const proxy="https://api.allorigins.win/raw?url="+encodeURIComponent(rss)
+async function loadFeed(){
 
-try{
-const res=await fetch(proxy)
-const text=await res.text()
+const url="https://api.allorigins.win/raw?url="+encodeURIComponent("https://nitter.net/search/rss?q=WEWANTMANON")
+
+const res=await fetch(url)
+const xml=await res.text()
 
 const parser=new DOMParser()
-const xml=parser.parseFromString(text,"text/xml")
-const items=xml.getElementsByTagName("item")
+const data=parser.parseFromString(xml,"text/xml")
 
-const feed=document.getElementById("nitterFeed")
+const items=data.querySelectorAll("item")
+
+const feed=document.getElementById("feed")
 feed.innerHTML=""
 
-for(let i=0;i<items.length;i++){
+items.forEach(item=>{
 
-const title=items[i].getElementsByTagName("title")[0]?.textContent || ""
-const link=items[i].getElementsByTagName("link")[0]?.textContent || ""
+const title=item.querySelector("title").textContent
+const link=item.querySelector("link").textContent
 
 const div=document.createElement("div")
 div.className="tweet"
+
 div.innerHTML=`
 <p>${title}</p>
 <a href="${link}" target="_blank">view tweet</a>
 `
+
 feed.appendChild(div)
-}
 
-if(items.length===0){
-feed.innerHTML="<p style='opacity:.6'>no tweets found</p>"
-}
-
-}catch(e){
-document.getElementById("nitterFeed").innerHTML="<p style='opacity:.6'>failed loading feed</p>"
-console.error(e)
-}
+})
 
 }
 
-// refresh every 60 seconds
-loadNitter()
-setInterval(loadNitter,60000)
+loadFeed()
+setInterval(loadFeed,60000)
 
 </script>
 
