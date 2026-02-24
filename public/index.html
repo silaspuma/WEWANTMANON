@@ -2,69 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>KATSEYE IS SIX</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
+<title>KASTEYE IS SIX</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
-body {
-  font-family: sans-serif;
-  background: #f7f7f7;
-  text-align: center;
-  padding: 20px;
-}
-button {
-  background-color: #ff4d4f;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left:0; top:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-}
-.modal-content {
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  max-width:500px;
-  position:relative;
-}
-.modal-content img {
-  width:100%;
-  border-radius:8px;
-}
-.close-btn {
-  position:absolute;
-  top:10px; right:15px;
-  font-size:20px;
-  cursor:pointer;
-}
-#feed-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-.twitter-timeline {
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
+body { font-family:sans-serif; background:#f7f7f7; text-align:center; padding:20px; }
+button { background:#ff4d4f; color:white; border:none; padding:12px 24px; font-size:16px; cursor:pointer; border-radius:6px; margin-bottom:20px; }
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+.modal-content { background:white; padding:20px; border-radius:12px; max-width:600px; position:relative; }
+.modal-content img { width:100%; border-radius:8px; }
+.close-btn { position:absolute; top:10px; right:15px; font-size:20px; cursor:pointer; }
+#feed { max-width:600px; margin:0 auto; overflow:hidden; }
+.tweet { background:white; margin:10px 0; padding:10px; border-radius:6px; opacity:0; transform:translateY(20px); transition:all 0.5s ease; }
+.tweet.show { opacity:1; transform:translateY(0); }
+.tweet strong { display:block; margin-bottom:4px; }
+.tweet a { text-decoration:none; color:#ff4d4f; }
 </style>
 </head>
 <body>
 
 <button id="infoBtn">view boycott information</button>
-
 <div id="modal" class="modal">
   <div class="modal-content">
     <span class="close-btn">&times;</span>
@@ -72,32 +28,50 @@ button {
   </div>
 </div>
 
-<div id="feed-container">
-  <a class="twitter-timeline" data-theme="light" data-chrome="nofooter noborders" href="https://twitter.com/hashtag/WEWANTMANON?ref_src=twsrc%5Etfw">#WEWANTMANON Tweets</a>
-  <a class="twitter-timeline" data-theme="light" data-chrome="nofooter noborders" href="https://twitter.com/hashtag/JusticeForManon?ref_src=twsrc%5Etfw">#JusticeForManon Tweets</a>
-  <a class="twitter-timeline" data-theme="light" data-chrome="nofooter noborders" href="https://twitter.com/hashtag/BoycottForManon?ref_src=twsrc%5Etfw">#BoycottForManon Tweets</a>
-</div>
+<div id="feed"></div>
 
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script>
-// modal functionality
 const modal = document.getElementById('modal');
-document.getElementById('infoBtn').onclick = () => modal.style.display = 'flex';
-document.querySelector('.close-btn').onclick = () => modal.style.display = 'none';
+document.getElementById('infoBtn').onclick = () => modal.style.display='flex';
+document.querySelector('.close-btn').onclick = () => modal.style.display='none';
 window.onclick = e => { if(e.target==modal) modal.style.display='none'; }
 
-// optional: animate iframes when they load
-const timelines = document.querySelectorAll('.twitter-timeline');
-timelines.forEach((t,i) => {
-  t.style.opacity = 0;
-  t.style.transform = 'translateY(20px)';
-  t.onload = () => {
-    setTimeout(() => {
-      t.style.opacity = 1;
-      t.style.transform = 'translateY(0)';
-    }, 100*i);
+const feed = document.getElementById('feed');
+const displayed = {};
+
+async function fetchRSS() {
+  try {
+    const res = await fetch('/api/rss');
+    const items = await res.json();
+
+    items.reverse().forEach(item => {
+      if(!displayed[item.link]){
+        displayed[item.link] = true;
+
+        const div = document.createElement('div');
+        div.className='tweet';
+        div.innerHTML = `<strong><a href="${item.link}" target="_blank">${item.title}</a></strong>${item.content}<br><small>${new Date(item.pubDate).toLocaleString()}</small>`;
+        feed.prepend(div);
+
+        setTimeout(()=>div.classList.add('show'),50);
+      }
+    });
+  } catch(e) {
+    console.error('Failed to fetch RSS', e);
   }
-});
+}
+
+// initial fetch and refresh every 60s
+fetchRSS();
+setInterval(fetchRSS,60000);
+
+// optional auto-scroll effect
+setInterval(()=>{
+  if(feed.firstChild){
+    const first = feed.firstChild;
+    feed.appendChild(first);
+  }
+},5000);
 </script>
 
 </body>
