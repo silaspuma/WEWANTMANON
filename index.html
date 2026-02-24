@@ -1,86 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WE WANT MANON</title>
+<title>#WEWANTMANON</title>
 
 <style>
 
 body{
 margin:0;
-background:#000;
-font-family:system-ui,-apple-system,sans-serif;
+font-family:system-ui;
+background:#0f0f0f;
 color:white;
 }
 
-.top{
+header{
+padding:30px;
+text-align:center;
+border-bottom:1px solid #222;
+}
+
+h1{
+margin:0;
+font-size:32px;
+}
+
+.buttons{
+margin-top:20px;
 display:flex;
 gap:12px;
 justify-content:center;
 flex-wrap:wrap;
-padding:30px 0;
 }
 
 button{
-background:#1d9bf0;
-border:none;
 padding:12px 18px;
-border-radius:10px;
+border:none;
+border-radius:8px;
+background:#1d9bf0;
 color:white;
 font-weight:600;
 cursor:pointer;
 }
 
-.feed{
-display:flex;
-justify-content:center;
-width:100%;
+button:hover{
+opacity:.9;
 }
 
-.twitter-timeline{
-width:95%!important;
-max-width:900px!important;
-}
-
-/* modal */
-
-.modal{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.85);
+#emailBox{
 display:none;
-align-items:center;
-justify-content:center;
-z-index:1000;
-}
-
-.modal-content{
-background:#111;
-padding:20px;
-border-radius:12px;
 max-width:700px;
-width:90%;
-}
-
-.modal img{
-width:100%;
+margin:20px auto;
+padding:20px;
+background:#161616;
 border-radius:10px;
+white-space:pre-wrap;
 }
 
-textarea{
-width:100%;
-height:320px;
-background:#000;
-color:white;
-border:1px solid #333;
-border-radius:8px;
-padding:10px;
-resize:none;
+#feed{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(380px,1fr));
+gap:20px;
+padding:30px;
+}
+
+.tweet{
+background:#161616;
+border-radius:12px;
+padding:18px;
+line-height:1.4;
+}
+
+.tweet a{
+color:#1d9bf0;
+text-decoration:none;
+}
+
+.tweet .meta{
+opacity:.6;
+font-size:14px;
 margin-bottom:10px;
+}
+
+@media (max-width:700px){
+#feed{
+grid-template-columns:1fr;
+padding:15px;
+}
 }
 
 </style>
@@ -88,94 +94,94 @@ margin-bottom:10px;
 
 <body>
 
-<div class="top">
-<button onclick="openBoycott()">view boycott info</button>
-<button onclick="openEmail()">email template</button>
+<header>
+
+<h1>#WEWANTMANON</h1>
+
+<div class="buttons">
+<button onclick="toggleEmail()">open email template</button>
+<button onclick="copyEmail()">copy email template</button>
+<button onclick="sendEmail()">send email to hxg@hybecorp.com</button>
 </div>
 
-<div class="feed">
+<div id="emailBox">
 
-<a class="twitter-timeline"
-data-theme="dark"
-data-width="900"
-data-height="1200"
-data-chrome="nofooter transparent"
-href="https://twitter.com/hashtag/WEWANTMANON?f=live">
-Loading tweets...
-</a>
+Subject: Fair Treatment for Manon
 
-</div>
+Dear HYBE x Geffen Team,
 
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+We are writing to express concern about the treatment and visibility of Manon.
 
-<div class="modal" id="boycottModal">
-<div class="modal-content">
-<img src="/boycott.png">
-<button onclick="closeModal('boycottModal')">close</button>
-</div>
-</div>
+Fans around the world are asking for transparency, fairness, and equal support for all members. Manon deserves proper promotion, opportunities, and respect as part of the group.
 
-<div class="modal" id="emailModal">
-<div class="modal-content">
-
-<textarea id="emailText" readonly>
-EMAIL TO: hxg@hybecorp.com
-
-SUBJECT : Request for Clarification and Transparency Regarding Manon
-
-______________
-
-Dear Hybe and Geffen Records,
-
-I am writing as a concerned supporter of KATSEYE about the recent announcement of Manon’s temporary hiatus.
-
-It has come to the attention of many fans that Manon recently engaged with an Instagram reel discussing her hiatus, racism, and the mistreatment of Black members in girl groups. The implications of this interaction, combined with the lack of clarity in the company’s first statement, have left many supporters confused, concerned, and seeking transparency.
-
-We respectfully ask that Geffen Records and HYBE provide a clear and detailed explanation about the circumstances of this hiatus. Transparency is essential in keeping trust between the company, the artists, and the global fanbase.
-
-As supporters of KATSEYE, we believe that every member deserves proper protection, fair representation, and a safe working environment. Any concerns related to racism, unequal treatment, or lack of support must be addressed directly and responsibly.
-
-We respectfully urge the company to:
-
-• Provide a comprehensive and transparent statement  
-• Confirm that Manon is being fully supported and protected  
-• Address concerns about fair treatment and artist welfare  
-
-We stand for all six members of KATSEYE. We stand for fairness, accountability, and the well-being of the artists.
-
-We look forward to your prompt response and clarification.
+We urge HYBE and Geffen to address these concerns and ensure Manon receives the support she deserves.
 
 Sincerely,
-
-[Your Name]
-</textarea>
-
-<button onclick="copyEmail()">copy email</button>
-<button onclick="closeModal('emailModal')">close</button>
+Concerned Fans
 
 </div>
-</div>
+
+</header>
+
+<div id="feed"></div>
 
 <script>
 
-function openBoycott(){
-document.getElementById("boycottModal").style.display="flex"
-}
+const emailText=document.getElementById("emailBox").innerText
 
-function openEmail(){
-document.getElementById("emailModal").style.display="flex"
-}
-
-function closeModal(id){
-document.getElementById(id).style.display="none"
+function toggleEmail(){
+const box=document.getElementById("emailBox")
+box.style.display=box.style.display==="none"?"block":"none"
 }
 
 function copyEmail(){
-let text=document.getElementById("emailText")
-text.select()
-document.execCommand("copy")
+navigator.clipboard.writeText(emailText)
 alert("email copied")
 }
+
+function sendEmail(){
+location.href="mailto:hxg@hybecorp.com?subject=Fair Treatment for Manon&body="+encodeURIComponent(emailText)
+}
+
+async function loadFeed(){
+
+const rss="https://nitter.net/search/rss?q=%23WEWANTMANON"
+
+const res=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(rss))
+
+const text=await res.text()
+
+const parser=new DOMParser()
+const xml=parser.parseFromString(text,"text/xml")
+
+const items=[...xml.querySelectorAll("item")]
+
+const feed=document.getElementById("feed")
+
+items.slice(0,40).forEach(item=>{
+
+const title=item.querySelector("title").textContent
+const link=item.querySelector("link").textContent
+const date=item.querySelector("pubDate").textContent
+const author=item.querySelector("creator")?.textContent || ""
+
+const div=document.createElement("div")
+div.className="tweet"
+
+div.innerHTML=`
+<div class="meta">${author} • ${new Date(date).toLocaleString()}</div>
+<div>${title}</div>
+<br>
+<a href="${link}" target="_blank">view on twitter</a>
+`
+
+feed.appendChild(div)
+
+})
+
+}
+
+loadFeed()
 
 </script>
 
