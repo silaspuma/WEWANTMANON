@@ -3,84 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>#WEWANTMANON Feed</title>
+<title>Manon Boycott</title>
 <link rel="icon" href="/favicon.ico">
 <style>
-body { font-family: system-ui, sans-serif; background:#000; color:white; margin:0; display:flex; flex-direction:column; align-items:center; }
-header { position:sticky; top:0; background:#000; width:100%; padding:12px; border-bottom:1px solid #222; display:flex; justify-content:center; z-index:10; }
-button { background:#1d9bf0; border:none; padding:10px 20px; color:white; font-weight:600; border-radius:20px; cursor:pointer; }
-.feed { width:100%; max-width:600px; padding:10px; }
-.tweet { background:#111; border:1px solid #222; border-radius:12px; padding:12px; margin-bottom:10px; display:flex; gap:12px; opacity:0; transform:translateY(-20px); animation:slideIn 0.4s forwards; }
-.avatar { width:42px; height:42px; border-radius:50%; }
-.user { display:flex; gap:6px; align-items:center; }
-.name { font-weight:700; }
-.username { color:#777; }
-.text { margin-top:4px; white-space:pre-wrap; }
-@keyframes slideIn { to { opacity:1; transform:translateY(0); } }
-.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.8); display:none; justify-content:center; align-items:center; }
-.modal img { max-width:90%; max-height:90%; border-radius:10px; }
-.close { position:absolute; top:20px; right:20px; font-size:28px; cursor:pointer; }
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+header img {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 20px;
+  border-radius: 12px;
+}
+.buttons {
+  margin: 20px 0;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #1d9bf0;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+textarea {
+  width: 90%;
+  max-width: 600px;
+  height: 150px;
+  border-radius: 8px;
+  padding: 12px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #222;
+  resize: none;
+  margin-bottom: 20px;
+}
+.timeline {
+  width: 90%;
+  max-width: 600px;
+  margin-bottom: 30px;
+}
+.timeline h2 {
+  border-bottom: 1px solid #333;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+.post {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
 </style>
 </head>
 <body>
 
 <header>
-<button onclick="openModal()">view boycott information</button>
+  <img src="/boycott.png" alt="Boycott Image">
 </header>
 
-<div class="feed" id="feed"></div>
+<div class="buttons">
+  <button id="copyBtn">Copy Email Template</button>
+  <button id="sendBtn">Send Email to hxg@hybecorp.com</button>
+</div>
 
-<div class="modal" id="modal">
-  <div class="close" onclick="closeModal()">✕</div>
-  <img src="/boycott.png" alt="Boycott Info">
+<textarea id="emailTemplate" readonly>
+Subject: Concern Regarding Manon Removal
+
+Dear HXG Team,
+
+I am writing to express my disappointment regarding the recent removal of Manon from Katsyee. I urge you to reconsider this decision and take steps to support your community.
+
+Sincerely,
+[Your Name]
+</textarea>
+
+<div class="timeline" id="timeline1">
+  <h2>#WEWANTMANON</h2>
+  <div class="post">Example post 1</div>
+  <div class="post">Example post 2</div>
+</div>
+
+<div class="timeline" id="timeline2">
+  <h2>#JusticeForManon</h2>
+  <div class="post">Example post 1</div>
+  <div class="post">Example post 2</div>
+</div>
+
+<div class="timeline" id="timeline3">
+  <h2>#BoycottForManon</h2>
+  <div class="post">Example post 1</div>
+  <div class="post">Example post 2</div>
 </div>
 
 <script>
-const API = "/tweets";
-const feed = document.getElementById("feed");
-const modal = document.getElementById("modal");
-let knownTweets = new Set();
+const copyBtn = document.getElementById("copyBtn");
+const sendBtn = document.getElementById("sendBtn");
+const emailTextarea = document.getElementById("emailTemplate");
 
-function createTweet(t){
-  const div = document.createElement("div");
-  div.className = "tweet";
-  div.innerHTML = `
-    <img class="avatar" src="${t.avatar}">
-    <div>
-      <div class="user">
-        <span class="name">${t.name}</span>
-        <span class="username">@${t.username}</span>
-      </div>
-      <div class="text">${t.text}</div>
-    </div>
-  `;
-  return div;
-}
+copyBtn.addEventListener("click", () => {
+  emailTextarea.select();
+  document.execCommand("copy");
+  alert("Email template copied!");
+});
 
-async function fetchTweets(){
-  try {
-    const res = await fetch(API);
-    const tweets = await res.json();
-    tweets.forEach((t,i)=>{
-      const id = t.username + t.text;
-      if(!knownTweets.has(id)){
-        knownTweets.add(id);
-        setTimeout(()=>{
-          const el = createTweet(t);
-          feed.prepend(el);
-        }, i*100);
-      }
-    });
-  } catch(e){
-    console.log("Error loading tweets", e);
-  }
-}
-
-setInterval(fetchTweets, 5000);
-fetchTweets();
-
-function openModal(){ modal.style.display="flex"; }
-function closeModal(){ modal.style.display="none"; }
+sendBtn.addEventListener("click", () => {
+  const subject = encodeURIComponent("Concern Regarding Manon Removal");
+  const body = encodeURIComponent(emailTextarea.value);
+  window.location.href = `mailto:hxg@hybecorp.com?subject=${subject}&body=${body}`;
+});
 </script>
+
 </body>
 </html>
