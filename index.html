@@ -3,118 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KATSEYE IS SIX</title>
-<link rel="icon" type="image/png" href="favicon.png">
+<title>#WEWANTMANON Feed</title>
+<link rel="icon" href="/favicon.ico">
 <style>
-body { font-family:'Segoe UI', sans-serif; background:#e6ecf0; margin:0; padding:20px; text-align:center; }
-button { background:#ff4d4f; color:white; border:none; padding:12px 24px; font-size:16px; cursor:pointer; border-radius:20px; margin-bottom:20px; }
-.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
-.modal-content { background:white; padding:20px; border-radius:12px; max-width:600px; width:90%; position:relative; }
-.modal-content img { width:100%; border-radius:8px; }
-.close-btn { position:absolute; top:10px; right:15px; font-size:20px; cursor:pointer; }
-#feed { max-width:600px; margin:0 auto; }
-.tweet { background:white; margin:10px 0; padding:12px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:left; opacity:0; transform:translateY(30px); transition: all 0.5s ease; border-left:4px solid transparent; display:flex; flex-direction:column; }
-.tweet.show { opacity:1; transform:translateY(0); }
-.tweet.new { animation: flash 1s ease; border-left-color:#ff4d4f; }
-@keyframes flash { 0%{background:#fff3f3} 50%{background:#ffe6e6} 100%{background:#ffffff} }
-.tweet-header { display:flex; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
-.tweet-avatar { width:48px; height:48px; border-radius:50%; margin-right:10px; flex-shrink:0; }
-.tweet-user-info { display:flex; flex-direction:column; }
-.tweet-user { font-weight:bold; font-size:14px; }
-.tweet-handle { font-size:13px; color:#657786; }
-.tweet-content { font-size:15px; margin:6px 0; word-wrap:break-word; }
-.tweet-time { font-size:12px; color:#657786; }
-.tweet a { color:#1b95e0; text-decoration:none; word-break:break-word; }
-@media (max-width:480px){
-  .tweet-header { flex-direction:row; }
-  .tweet-avatar { width:36px; height:36px; }
-  .tweet-user { font-size:13px; }
-  .tweet-handle { font-size:12px; }
-  .tweet-content { font-size:14px; }
+body {
+  font-family: system-ui, sans-serif;
+  background: #000;
+  color: white;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+header {
+  position: sticky;
+  top: 0;
+  background: #000;
+  width: 100%;
+  padding: 12px;
+  border-bottom: 1px solid #222;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+button {
+  background: #1d9bf0;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.feed {
+  width: 100%;
+  max-width: 600px;
+  padding: 10px;
+}
+.tweet {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: slideIn 0.4s forwards;
+}
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+.user {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.name { font-weight: 700; }
+.username { color: #777; }
+.text { margin-top: 4px; white-space: pre-wrap; }
+@keyframes slideIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.modal img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 28px;
+  cursor: pointer;
 }
 </style>
 </head>
 <body>
 
-<button id="infoBtn">view boycott information</button>
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn">&times;</span>
-    <img src="boycott.png" alt="Boycott Info">
-  </div>
+<header>
+<button onclick="openModal()">view boycott information</button>
+</header>
+
+<div class="feed" id="feed"></div>
+
+<div class="modal" id="modal">
+  <div class="close" onclick="closeModal()">✕</div>
+  <img src="/boycott.png" alt="Boycott Info">
 </div>
 
-<div id="feed"></div>
-
 <script>
-const modal = document.getElementById('modal');
-document.getElementById('infoBtn').onclick = () => modal.style.display='flex';
-document.querySelector('.close-btn').onclick = () => modal.style.display='none';
-window.onclick = e => { if(e.target==modal) modal.style.display='none'; }
+const API = "http://YOUR_VPS_IP:3000/tweets"; // replace with your VPS IP or domain
+const feed = document.getElementById("feed");
+const modal = document.getElementById("modal");
+let knownTweets = new Set();
 
-const feed = document.getElementById('feed');
-const displayed = {};
-
-const RSS_FEEDS = [
-  {url:'https://rss.app/feeds/3dWSkwTparYVwFFT.xml'},
-  {url:'https://rss.app/feeds/wK9qa4J7Ruownim3.xml'},
-  {url:'https://rss.app/feeds/YourBoycottForManonFeed.xml'}
-];
-
-// helper to get display name, username, avatar
-function getUserInfo(item){
-  // try to get from RSS author/creator fields
-  let displayName = item.author || item.creator || 'Unknown';
-  let username = displayName.replace(/\s+/g,'').toLowerCase();
-  let avatar = item.thumbnail || 'https://via.placeholder.com/48';
-  return {displayName, username, avatar};
+function createTweet(t){
+  const div = document.createElement("div");
+  div.className = "tweet";
+  div.innerHTML = `
+    <img class="avatar" src="${t.avatar}">
+    <div>
+      <div class="user">
+        <span class="name">${t.name}</span>
+        <span class="username">@${t.username}</span>
+      </div>
+      <div class="text">${t.text}</div>
+    </div>
+  `;
+  return div;
 }
 
-async function fetchAllRSS(){
-  try{
-    let allItems = [];
-    for(const feedInfo of RSS_FEEDS){
-      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedInfo.url)}`;
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      const items = (data.items||[]).map(i => ({...i, source: feedInfo.url}));
-      allItems = allItems.concat(items);
-    }
-
-    allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-
-    allItems.forEach(item=>{
-      if(!displayed[item.link]){
-        displayed[item.link]=true;
-        const {displayName, username, avatar}=getUserInfo(item);
-
-        const div=document.createElement('div');
-        div.className='tweet';
-        div.innerHTML=`
-          <div class="tweet-header">
-            <img class="tweet-avatar" src="${avatar}" alt="avatar">
-            <div class="tweet-user-info">
-              <span class="tweet-user">${displayName}</span>
-              <span class="tweet-handle">@${username}</span>
-            </div>
-          </div>
-          <div class="tweet-content">${item.content}</div>
-          <div class="tweet-time"><a href="${item.link}" target="_blank">${new Date(item.pubDate).toLocaleString()}</a></div>
-        `;
-        feed.prepend(div);
-        setTimeout(()=>div.classList.add('show','new'),50);
-        setTimeout(()=>div.classList.remove('new'),1500);
+async function fetchTweets(){
+  try {
+    const res = await fetch(API);
+    const tweets = await res.json();
+    tweets.forEach((t,i)=>{
+      const id = t.username + t.text;
+      if(!knownTweets.has(id)){
+        knownTweets.add(id);
+        setTimeout(()=>{
+          const el = createTweet(t);
+          feed.prepend(el);
+        }, i*150); // staggered animation
       }
     });
-  }catch(e){console.error('RSS fetch error',e);}
+  } catch(e){
+    console.log("Error loading tweets", e);
+  }
 }
 
-// initial fetch + refresh
-fetchAllRSS();
-setInterval(fetchAllRSS,60000);
+setInterval(fetchTweets, 5000); // refresh every 5 seconds
+fetchTweets();
 
-// auto-scroll older posts
-setInterval(()=>{if(feed.firstChild) feed.appendChild(feed.firstChild);},5000);
+function openModal(){ modal.style.display="flex"; }
+function closeModal(){ modal.style.display="none"; }
 </script>
+
 </body>
 </html>
