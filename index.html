@@ -2,25 +2,24 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WE WANT MANON</title>
-<link rel="icon" href="/favicon.ico">
 
 <style>
 
 body{
 margin:0;
-font-family:system-ui,-apple-system,sans-serif;
 background:#000;
-color:#fff;
+font-family:system-ui,-apple-system,sans-serif;
+color:white;
 }
 
 .top{
-margin:30px 0;
 display:flex;
 gap:12px;
 justify-content:center;
 flex-wrap:wrap;
+padding:30px 0;
 }
 
 button{
@@ -31,20 +30,17 @@ border-radius:10px;
 color:white;
 font-weight:600;
 cursor:pointer;
-font-size:15px;
 }
 
 .feed{
-width:100%;
 display:flex;
 justify-content:center;
-padding-bottom:40px;
+width:100%;
 }
 
-/* make timeline wide */
 .twitter-timeline{
 width:95%!important;
-max-width:1200px!important;
+max-width:900px!important;
 }
 
 /* modal */
@@ -55,7 +51,7 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,.8);
+background:rgba(0,0,0,.85);
 display:none;
 align-items:center;
 justify-content:center;
@@ -79,17 +75,12 @@ textarea{
 width:100%;
 height:320px;
 background:#000;
-color:#fff;
+color:white;
 border:1px solid #333;
 border-radius:8px;
 padding:10px;
 resize:none;
 margin-bottom:10px;
-}
-
-.close{
-margin-top:10px;
-background:#444;
 }
 
 </style>
@@ -106,19 +97,21 @@ background:#444;
 
 <a class="twitter-timeline"
 data-theme="dark"
+data-width="900"
 data-height="1200"
-href="https://twitter.com/hashtag/WEWANTMANON?src=hashtag_click">
-Tweets about #WEWANTMANON
+data-chrome="nofooter transparent"
+href="https://twitter.com/hashtag/WEWANTMANON?f=live">
+Loading tweets...
 </a>
 
 </div>
 
-<script async src="https://platform.twitter.com/widgets.js"></script>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <div class="modal" id="boycottModal">
 <div class="modal-content">
 <img src="/boycott.png">
-<button class="close" onclick="closeModal('boycottModal')">close</button>
+<button onclick="closeModal('boycottModal')">close</button>
 </div>
 </div>
 
@@ -144,11 +137,9 @@ As supporters of KATSEYE, we believe that every member deserves proper protectio
 
 We respectfully urge the company to:
 
-• Provide a comprehensive and transparent statement
-
-• Confirm that Manon is being fully supported and protected
-
-• Address concerns about fair treatment and artist welfare
+• Provide a comprehensive and transparent statement  
+• Confirm that Manon is being fully supported and protected  
+• Address concerns about fair treatment and artist welfare  
 
 We stand for all six members of KATSEYE. We stand for fairness, accountability, and the well-being of the artists.
 
@@ -160,7 +151,7 @@ Sincerely,
 </textarea>
 
 <button onclick="copyEmail()">copy email</button>
-<button class="close" onclick="closeModal('emailModal')">close</button>
+<button onclick="closeModal('emailModal')">close</button>
 
 </div>
 </div>
@@ -180,7 +171,7 @@ document.getElementById(id).style.display="none"
 }
 
 function copyEmail(){
-const text=document.getElementById("emailText")
+let text=document.getElementById("emailText")
 text.select()
 document.execCommand("copy")
 alert("email copied")
