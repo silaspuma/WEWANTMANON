@@ -39,7 +39,7 @@ button {
 textarea {
   width: 90%;
   max-width: 600px;
-  height: 150px;
+  height: 350px;
   border-radius: 8px;
   padding: 12px;
   background: #111;
@@ -47,6 +47,7 @@ textarea {
   border: 1px solid #222;
   resize: none;
   margin-bottom: 20px;
+  white-space: pre-wrap;
 }
 .timeline {
   width: 90%;
@@ -64,6 +65,13 @@ textarea {
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 8px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.5s ease;
+}
+.post.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
 </head>
@@ -79,35 +87,53 @@ textarea {
 </div>
 
 <textarea id="emailTemplate" readonly>
-Subject: Concern Regarding Manon Removal
+EMAIL TO: hxg@hybecorp.com
 
-Dear HXG Team,
+SUBJECT : Request for Clarification and Transparency Regarding Manon
 
-I am writing to express my disappointment regarding the recent removal of Manon from Katsyee. I urge you to reconsider this decision and take steps to support your community.
+______________
+
+Dear Hybe and Geffen Records,
+
+I am writing as a concerned supporter of KATSEYE about the recent announcement of Manon’s temporary hiatus.
+
+It has come to the attention of many fans that Manon recently engaged with an Instagram reel discussing her hiatus, racism, and the mistreatment of Black members in girl groups. The implications of this interaction, combined with the lack of clarity in the company’s first statement, have left many supporters confused, concerned, and seeking transparency.
+
+We respectfully ask that Geffen Records and HYBE provide a clear and detailed explanation about the circumstances of this hiatus. Transparency is essential in keeping trust between the company, the artists, and the global fanbase.
+
+As supporters of KATSEYE, we believe that every member deserves proper protection, fair representation, and a safe working environment. Any concerns related to racism, unequal treatment, or lack of support must be addressed directly and responsibly.
+
+We respectfully urge the company to:
+
+• Provide a comprehensive and transparent statement
+
+• Confirm that Manon is being fully supported and protected
+
+• Address concerns about fair treatment and artist welfare
+
+We stand for all six members of KATSEYE. We stand for fairness, accountability, and the well-being of the artists.
+
+We look forward to your prompt response and clarification.
 
 Sincerely,
+
 [Your Name]
 </textarea>
 
 <div class="timeline" id="timeline1">
   <h2>#WEWANTMANON</h2>
-  <div class="post">Example post 1</div>
-  <div class="post">Example post 2</div>
 </div>
 
 <div class="timeline" id="timeline2">
   <h2>#JusticeForManon</h2>
-  <div class="post">Example post 1</div>
-  <div class="post">Example post 2</div>
 </div>
 
 <div class="timeline" id="timeline3">
   <h2>#BoycottForManon</h2>
-  <div class="post">Example post 1</div>
-  <div class="post">Example post 2</div>
 </div>
 
 <script>
+// buttons
 const copyBtn = document.getElementById("copyBtn");
 const sendBtn = document.getElementById("sendBtn");
 const emailTextarea = document.getElementById("emailTemplate");
@@ -119,10 +145,44 @@ copyBtn.addEventListener("click", () => {
 });
 
 sendBtn.addEventListener("click", () => {
-  const subject = encodeURIComponent("Concern Regarding Manon Removal");
+  const subject = encodeURIComponent("Request for Clarification and Transparency Regarding Manon");
   const body = encodeURIComponent(emailTextarea.value);
   window.location.href = `mailto:hxg@hybecorp.com?subject=${subject}&body=${body}`;
 });
+
+// RSS feeds for hashtags
+const feeds = {
+  timeline1: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml",
+  timeline2: "https://rss.app/feeds/wK9qa4J7Ruownim3.xml",
+  timeline3: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml" // placeholder, can add another
+};
+
+// fetch and render posts
+async function fetchFeed(timelineId, feedUrl) {
+  try {
+    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
+    const data = await res.json();
+    const container = document.getElementById(timelineId);
+
+    data.items.forEach(item => {
+      const post = document.createElement("div");
+      post.className = "post";
+      post.innerHTML = `<strong>${item.title}</strong><br>${item.contentSnippet || ""}<br><a href="${item.link}" target="_blank">View</a>`;
+      container.insertBefore(post, container.children[1]);
+      setTimeout(() => post.classList.add("show"), 50);
+    });
+  } catch (e) {
+    console.error("Error loading feed:", timelineId, e);
+  }
+}
+
+// initially fetch all feeds
+Object.entries(feeds).forEach(([timelineId, feedUrl]) => fetchFeed(timelineId, feedUrl));
+
+// optional: poll every 30s
+setInterval(() => {
+  Object.entries(feeds).forEach(([timelineId, feedUrl]) => fetchFeed(timelineId, feedUrl));
+}, 30000);
 </script>
 
 </body>
