@@ -60,6 +60,8 @@ textarea {
   margin-bottom: 10px;
 }
 .post {
+  display: flex;
+  gap: 10px;
   background: #111;
   border: 1px solid #222;
   border-radius: 8px;
@@ -72,6 +74,25 @@ textarea {
 .post.show {
   opacity: 1;
   transform: translateY(0);
+}
+.post img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.post-content {
+  display: flex;
+  flex-direction: column;
+}
+.post-content strong {
+  color: #1d9bf0;
+}
+.post-content a {
+  color: #1d9bf0;
+  font-size: 0.9em;
+  text-decoration: none;
+  margin-top: 4px;
 }
 </style>
 </head>
@@ -154,10 +175,9 @@ sendBtn.addEventListener("click", () => {
 const feeds = {
   timeline1: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml",
   timeline2: "https://rss.app/feeds/wK9qa4J7Ruownim3.xml",
-  timeline3: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml" // placeholder, can add another
+  timeline3: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml"
 };
 
-// fetch and render posts
 async function fetchFeed(timelineId, feedUrl) {
   try {
     const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
@@ -165,9 +185,23 @@ async function fetchFeed(timelineId, feedUrl) {
     const container = document.getElementById(timelineId);
 
     data.items.forEach(item => {
+      // prevent duplicates by checking link
+      if (container.querySelector(`a[href="${item.link}"]`)) return;
+
       const post = document.createElement("div");
       post.className = "post";
-      post.innerHTML = `<strong>${item.title}</strong><br>${item.contentSnippet || ""}<br><a href="${item.link}" target="_blank">View</a>`;
+
+      const authorImg = item.enclosure?.link || "https://via.placeholder.com/48";
+      const authorName = item.author || "Anonymous";
+
+      post.innerHTML = `
+        <img src="${authorImg}" alt="Profile">
+        <div class="post-content">
+          <strong>${authorName}</strong><br>
+          ${item.title}<br>
+          <a href="${item.link}" target="_blank">View</a>
+        </div>
+      `;
       container.insertBefore(post, container.children[1]);
       setTimeout(() => post.classList.add("show"), 50);
     });
@@ -179,7 +213,7 @@ async function fetchFeed(timelineId, feedUrl) {
 // initially fetch all feeds
 Object.entries(feeds).forEach(([timelineId, feedUrl]) => fetchFeed(timelineId, feedUrl));
 
-// optional: poll every 30s
+// poll every 30s for new posts
 setInterval(() => {
   Object.entries(feeds).forEach(([timelineId, feedUrl]) => fetchFeed(timelineId, feedUrl));
 }, 30000);
