@@ -1,113 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manon Boycott</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WE WANT MANON</title>
 <link rel="icon" href="/favicon.ico">
+
 <style>
-body {
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  background: #000;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+body{
+margin:0;
+font-family:system-ui,-apple-system,sans-serif;
+background:#000;
+color:#fff;
+display:flex;
+flex-direction:column;
+align-items:center;
 }
-header img {
-  width: 100%;
-  max-width: 600px;
-  margin-top: 20px;
-  border-radius: 12px;
+
+.top{
+margin:30px 0 20px 0;
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+justify-content:center;
 }
-.buttons {
-  margin: 20px 0;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+
+button{
+background:#1d9bf0;
+border:none;
+padding:12px 18px;
+border-radius:10px;
+color:white;
+font-weight:600;
+cursor:pointer;
+font-size:15px;
 }
-button {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  background: #1d9bf0;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
+
+button:hover{
+opacity:.9;
 }
-textarea {
-  width: 90%;
-  max-width: 600px;
-  height: 350px;
-  border-radius: 8px;
-  padding: 12px;
-  background: #111;
-  color: #fff;
-  border: 1px solid #222;
-  resize: none;
-  margin-bottom: 20px;
-  white-space: pre-wrap;
+
+.feed{
+width:95%;
+max-width:700px;
+margin-bottom:40px;
 }
-.timeline {
-  width: 90%;
-  max-width: 600px;
-  margin-bottom: 30px;
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.8);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:1000;
 }
-.timeline h2 {
-  border-bottom: 1px solid #333;
-  padding-bottom: 6px;
-  margin-bottom: 10px;
+
+.modal-content{
+background:#111;
+padding:20px;
+border-radius:12px;
+max-width:700px;
+width:90%;
 }
-.post {
-  display: flex;
-  gap: 10px;
-  background: #111;
-  border: 1px solid #222;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 8px;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.5s ease;
+
+.modal img{
+width:100%;
+border-radius:10px;
 }
-.post.show {
-  opacity: 1;
-  transform: translateY(0);
+
+textarea{
+width:100%;
+height:320px;
+background:#000;
+color:#fff;
+border:1px solid #333;
+border-radius:8px;
+padding:10px;
+resize:none;
+margin-bottom:10px;
 }
-.post img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.post-content {
-  display: flex;
-  flex-direction: column;
-}
-.post-content strong {
-  color: #1d9bf0;
-}
-.post-content a {
-  color: #1d9bf0;
-  font-size: 0.9em;
-  text-decoration: none;
-  margin-top: 4px;
+
+.close{
+margin-top:10px;
+background:#444;
 }
 </style>
 </head>
+
 <body>
 
-<header>
-  <img src="/boycott.png" alt="Boycott Image">
-</header>
-
-<div class="buttons">
-  <button id="copyBtn">Copy Email Template</button>
-  <button id="sendBtn">Send Email to hxg@hybecorp.com</button>
+<div class="top">
+<button onclick="openBoycott()">view boycott info</button>
+<button onclick="openEmail()">email template</button>
 </div>
 
-<textarea id="emailTemplate" readonly>
+<div class="feed">
+<div class="sk-ww-twitter-hashtag-feed" data-embed-id="25657139"></div>
+</div>
+
+<script src="https://widgets.sociablekit.com/twitter-hashtag-feed/widget.js" defer></script>
+
+<!-- boycott modal -->
+<div class="modal" id="boycottModal">
+<div class="modal-content">
+<img src="/boycott.png">
+<button class="close" onclick="closeModal('boycottModal')">close</button>
+</div>
+</div>
+
+<!-- email modal -->
+<div class="modal" id="emailModal">
+<div class="modal-content">
+
+<textarea id="emailText" readonly>
 EMAIL TO: hxg@hybecorp.com
 
 SUBJECT : Request for Clarification and Transparency Regarding Manon
@@ -141,82 +150,31 @@ Sincerely,
 [Your Name]
 </textarea>
 
-<div class="timeline" id="timeline1">
-  <h2>#WEWANTMANON</h2>
-</div>
+<button onclick="copyEmail()">copy email</button>
+<button class="close" onclick="closeModal('emailModal')">close</button>
 
-<div class="timeline" id="timeline2">
-  <h2>#JusticeForManon</h2>
 </div>
-
-<div class="timeline" id="timeline3">
-  <h2>#BoycottForManon</h2>
 </div>
 
 <script>
-// buttons
-const copyBtn = document.getElementById("copyBtn");
-const sendBtn = document.getElementById("sendBtn");
-const emailTextarea = document.getElementById("emailTemplate");
-
-copyBtn.addEventListener("click", () => {
-  emailTextarea.select();
-  document.execCommand("copy");
-  alert("Email template copied!");
-});
-
-sendBtn.addEventListener("click", () => {
-  const subject = encodeURIComponent("Request for Clarification and Transparency Regarding Manon");
-  const body = encodeURIComponent(emailTextarea.value);
-  window.location.href = `mailto:hxg@hybecorp.com?subject=${subject}&body=${body}`;
-});
-
-// RSS feeds for hashtags
-const feeds = {
-  timeline1: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml",
-  timeline2: "https://rss.app/feeds/wK9qa4J7Ruownim3.xml",
-  timeline3: "https://rss.app/feeds/3dWSkwTparYVwFFT.xml"
-};
-
-async function fetchFeed(timelineId, feedUrl) {
-  try {
-    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
-    const data = await res.json();
-    const container = document.getElementById(timelineId);
-
-    data.items.forEach(item => {
-      // prevent duplicates by checking link
-      if (container.querySelector(`a[href="${item.link}"]`)) return;
-
-      const post = document.createElement("div");
-      post.className = "post";
-
-      const authorImg = item.enclosure?.link || "https://via.placeholder.com/48";
-      const authorName = item.author || "Anonymous";
-
-      post.innerHTML = `
-        <img src="${authorImg}" alt="Profile">
-        <div class="post-content">
-          <strong>${authorName}</strong><br>
-          ${item.title}<br>
-          <a href="${item.link}" target="_blank">View</a>
-        </div>
-      `;
-      container.insertBefore(post, container.children[1]);
-      setTimeout(() => post.classList.add("show"), 50);
-    });
-  } catch (e) {
-    console.error("Error loading feed:", timelineId, e);
-  }
+function openBoycott(){
+document.getElementById("boycottModal").style.display="flex"
 }
 
-// initially fetch all feeds
-Object.entries(feeds).forEach(([timelineId, feedUrl]) => fetchFeed(timelineId, feedUrl));
+function openEmail(){
+document.getElementById("emailModal").style.display="flex"
+}
 
-// poll every 30s for new posts
-setInterval(() => {
-  Object.entries(feeds).forEach(([timelineId, feedUrl]) => fetchFeed(timelineId, feedUrl));
-}, 30000);
+function closeModal(id){
+document.getElementById(id).style.display="none"
+}
+
+function copyEmail(){
+const text=document.getElementById("emailText")
+text.select()
+document.execCommand("copy")
+alert("email copied")
+}
 </script>
 
 </body>
