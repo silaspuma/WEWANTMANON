@@ -2,20 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Manon Boycott Feed</title>
+<title>KASTEYE IS SIX</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
-body { font-family:sans-serif; background:#f7f7f7; text-align:center; padding:20px; }
-button { background:#ff4d4f; color:white; border:none; padding:12px 24px; font-size:16px; cursor:pointer; border-radius:6px; margin-bottom:20px; }
+body { font-family: 'Segoe UI', sans-serif; background:#e6ecf0; text-align:center; padding:20px; }
+button { background:#ff4d4f; color:white; border:none; padding:12px 24px; font-size:16px; cursor:pointer; border-radius:20px; margin-bottom:20px; }
 .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
 .modal-content { background:white; padding:20px; border-radius:12px; max-width:600px; position:relative; }
 .modal-content img { width:100%; border-radius:8px; }
 .close-btn { position:absolute; top:10px; right:15px; font-size:20px; cursor:pointer; }
 #feed { max-width:600px; margin:0 auto; overflow:hidden; }
-.tweet { background:white; margin:10px 0; padding:10px; border-radius:6px; opacity:0; transform:translateY(20px); transition:all 0.5s ease; }
+.tweet { background:white; margin:10px 0; padding:12px; border-radius:12px; opacity:0; transform:translateY(20px); transition:all 0.5s ease; box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:left; }
 .tweet.show { opacity:1; transform:translateY(0); }
-.tweet strong { display:block; margin-bottom:4px; }
-.tweet a { text-decoration:none; color:#ff4d4f; }
+.tweet-header { display:flex; align-items:center; margin-bottom:6px; }
+.tweet-avatar { width:36px; height:36px; border-radius:50%; background:#bbb; margin-right:10px; }
+.tweet-user { font-weight:bold; font-size:14px; }
+.tweet-content { font-size:15px; margin-bottom:6px; }
+.tweet-time { font-size:12px; color:#657786; }
+.tweet a { color:#1b95e0; text-decoration:none; }
 </style>
 </head>
 <body>
@@ -39,45 +43,60 @@ window.onclick = e => { if(e.target==modal) modal.style.display='none'; }
 const feed = document.getElementById('feed');
 const displayed = {};
 
-// rss2json endpoint
-const RSS_URL = 'https://rss.app/feeds/3dWSkwTparYVwFFT.xml';
-const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+// array of RSS feeds
+const RSS_FEEDS = [
+  {url:'https://rss.app/feeds/3dWSkwTparYVwFFT.xml', label:'#WEWANTMANON'},
+  {url:'https://rss.app/feeds/wK9qa4J7Ruownim3.xml', label:'#JusticeForManon'},
+  {url:'https://rss.app/feeds/YourBoycottForManonFeed.xml', label:'#BoycottForManon'} // replace with actual feed URL
+];
 
-async function fetchRSS() {
+async function fetchAllRSS(){
   try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    const items = data.items || [];
+    let allItems = [];
+    for(const feedInfo of RSS_FEEDS){
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedInfo.url)}`;
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+      const items = (data.items || []).map(i => ({...i, source: feedInfo.label}));
+      allItems = allItems.concat(items);
+    }
 
-    items.reverse().forEach(item => {
+    // sort descending by pubDate
+    allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+
+    // display
+    allItems.forEach(item => {
       if(!displayed[item.link]){
         displayed[item.link] = true;
 
         const div = document.createElement('div');
         div.className='tweet';
-        div.innerHTML = `<strong><a href="${item.link}" target="_blank">${item.title}</a></strong>${item.content}<br><small>${new Date(item.pubDate).toLocaleString()}</small>`;
+        div.innerHTML = `
+          <div class="tweet-header">
+            <div class="tweet-avatar"></div>
+            <div class="tweet-user">${item.source}</div>
+          </div>
+          <div class="tweet-content">${item.content}</div>
+          <div class="tweet-time"><a href="${item.link}" target="_blank">${new Date(item.pubDate).toLocaleString()}</a></div>
+        `;
         feed.prepend(div);
-
         setTimeout(()=>div.classList.add('show'),50);
       }
     });
-  } catch(e) {
-    console.error('Failed to fetch RSS', e);
+  } catch(e){
+    console.error('RSS fetch error', e);
   }
 }
 
-// initial fetch + refresh every 60s
-fetchRSS();
-setInterval(fetchRSS,60000);
+// initial + refresh every 60s
+fetchAllRSS();
+setInterval(fetchAllRSS,60000);
 
-// auto-scroll
+// auto-scroll older posts
 setInterval(()=>{
-  if(feed.firstChild){
-    const first = feed.firstChild;
-    feed.appendChild(first);
-  }
+  if(feed.firstChild) feed.appendChild(feed.firstChild);
 },5000);
-</script>
 
+</script>
 </body>
 </html>
