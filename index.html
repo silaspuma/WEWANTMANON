@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>KASTEYE IS SIX</title>
+<title>KATSEYE IS SIX</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
 body { font-family: 'Segoe UI', sans-serif; background:#e6ecf0; text-align:center; padding:20px; }
@@ -12,11 +12,18 @@ button { background:#ff4d4f; color:white; border:none; padding:12px 24px; font-s
 .modal-content img { width:100%; border-radius:8px; }
 .close-btn { position:absolute; top:10px; right:15px; font-size:20px; cursor:pointer; }
 #feed { max-width:600px; margin:0 auto; overflow:hidden; }
-.tweet { background:white; margin:10px 0; padding:12px; border-radius:12px; opacity:0; transform:translateY(20px); transition:all 0.5s ease; box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:left; }
+.tweet { background:white; margin:10px 0; padding:12px; border-radius:12px; opacity:0; transform:translateY(20px); transition:all 0.5s ease; box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:left; border-left: 4px solid transparent; }
 .tweet.show { opacity:1; transform:translateY(0); }
+.tweet.new { animation: flash 1s ease; border-left-color:#ff4d4f; }
+@keyframes flash {
+  0% { background-color: #fff3f3; }
+  50% { background-color: #ffe6e6; }
+  100% { background-color: #ffffff; }
+}
 .tweet-header { display:flex; align-items:center; margin-bottom:6px; }
-.tweet-avatar { width:36px; height:36px; border-radius:50%; background:#bbb; margin-right:10px; }
+.tweet-avatar { width:48px; height:48px; border-radius:50%; background:#bbb; margin-right:10px; flex-shrink:0; }
 .tweet-user { font-weight:bold; font-size:14px; }
+.tweet-handle { font-size:13px; color:#657786; margin-left:5px; }
 .tweet-content { font-size:15px; margin-bottom:6px; }
 .tweet-time { font-size:12px; color:#657786; }
 .tweet a { color:#1b95e0; text-decoration:none; }
@@ -43,12 +50,22 @@ window.onclick = e => { if(e.target==modal) modal.style.display='none'; }
 const feed = document.getElementById('feed');
 const displayed = {};
 
-// array of RSS feeds
+// RSS feeds with label (used for display name & handle)
 const RSS_FEEDS = [
   {url:'https://rss.app/feeds/3dWSkwTparYVwFFT.xml', label:'#WEWANTMANON'},
   {url:'https://rss.app/feeds/wK9qa4J7Ruownim3.xml', label:'#JusticeForManon'},
-  {url:'https://rss.app/feeds/YourBoycottForManonFeed.xml', label:'#BoycottForManon'} // replace with actual feed URL
 ];
+
+// helper to generate username from label
+function getUsername(label){
+  return label.replace('#','').toLowerCase();
+}
+
+// placeholder avatar
+function getAvatar(label){
+  // can be replaced with actual images if RSS provides them
+  return 'https://via.placeholder.com/48';
+}
 
 async function fetchAllRSS(){
   try {
@@ -61,26 +78,28 @@ async function fetchAllRSS(){
       allItems = allItems.concat(items);
     }
 
-    // sort descending by pubDate
     allItems.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
 
-    // display
-    allItems.forEach(item => {
+    allItems.forEach(item=>{
       if(!displayed[item.link]){
-        displayed[item.link] = true;
+        displayed[item.link]=true;
 
-        const div = document.createElement('div');
+        const div=document.createElement('div');
         div.className='tweet';
-        div.innerHTML = `
+        div.innerHTML=`
           <div class="tweet-header">
-            <div class="tweet-avatar"></div>
-            <div class="tweet-user">${item.source}</div>
+            <img class="tweet-avatar" src="${getAvatar(item.source)}" alt="avatar">
+            <div>
+              <span class="tweet-user">${item.source}</span>
+              <span class="tweet-handle">@${getUsername(item.source)}</span>
+            </div>
           </div>
           <div class="tweet-content">${item.content}</div>
           <div class="tweet-time"><a href="${item.link}" target="_blank">${new Date(item.pubDate).toLocaleString()}</a></div>
         `;
         feed.prepend(div);
-        setTimeout(()=>div.classList.add('show'),50);
+        setTimeout(()=>div.classList.add('show','new'),50);
+        setTimeout(()=>div.classList.remove('new'),2000); // remove highlight after 2s
       }
     });
   } catch(e){
@@ -88,7 +107,7 @@ async function fetchAllRSS(){
   }
 }
 
-// initial + refresh every 60s
+// initial fetch + refresh every 60s
 fetchAllRSS();
 setInterval(fetchAllRSS,60000);
 
@@ -96,7 +115,6 @@ setInterval(fetchAllRSS,60000);
 setInterval(()=>{
   if(feed.firstChild) feed.appendChild(feed.firstChild);
 },5000);
-
 </script>
 </body>
 </html>
