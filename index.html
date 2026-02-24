@@ -34,44 +34,20 @@ cursor:pointer;
 font-size:15px;
 }
 
-button:hover{
-opacity:.9;
-}
-
 .feed{
 width:100%;
-padding:0 20px 40px 20px;
-box-sizing:border-box;
+display:flex;
+justify-content:center;
+padding-bottom:40px;
 }
 
-/* force widget full width */
-.sk-ww-twitter-hashtag-feed{
-width:100%!important;
+/* make timeline wide */
+.twitter-timeline{
+width:95%!important;
+max-width:1200px!important;
 }
 
-/* desktop grid layout */
-@media (min-width:700px){
-
-.sk-ww-twitter-hashtag-feed ul{
-display:grid!important;
-grid-template-columns:repeat(auto-fill,minmax(420px,1fr));
-gap:20px;
-}
-
-}
-
-/* mobile single column */
-@media (max-width:699px){
-
-.sk-ww-twitter-hashtag-feed ul{
-display:grid!important;
-grid-template-columns:1fr;
-gap:12px;
-}
-
-}
-
-/* modal styling */
+/* modal */
 
 .modal{
 position:fixed;
@@ -127,10 +103,17 @@ background:#444;
 </div>
 
 <div class="feed">
-<div class="sk-ww-twitter-hashtag-feed" data-embed-id="25657139"></div>
+
+<a class="twitter-timeline"
+data-theme="dark"
+data-height="1200"
+href="https://twitter.com/hashtag/WEWANTMANON?src=hashtag_click">
+Tweets about #WEWANTMANON
+</a>
+
 </div>
 
-<script src="https://widgets.sociablekit.com/twitter-hashtag-feed/widget.js" defer></script>
+<script async src="https://platform.twitter.com/widgets.js"></script>
 
 <div class="modal" id="boycottModal">
 <div class="modal-content">
