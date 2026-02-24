@@ -1,94 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>#WEWANTMANON</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WE WANT MANON</title>
+<link rel="icon" href="/favicon.ico">
 
 <style>
+
 body{
 margin:0;
-font-family:system-ui;
+font-family:system-ui,-apple-system,sans-serif;
 background:#000;
 color:#fff;
 }
 
 .top{
-padding:30px;
-text-align:center;
-border-bottom:1px solid #222;
+margin:30px 0;
+display:flex;
+gap:12px;
+justify-content:center;
+flex-wrap:wrap;
 }
 
 button{
-padding:12px 18px;
-margin:6px;
+background:#1d9bf0;
 border:none;
-border-radius:6px;
-background:#fff;
-color:#000;
+padding:12px 18px;
+border-radius:10px;
+color:white;
 font-weight:600;
 cursor:pointer;
-}
-
-textarea{
-width:90%;
-max-width:900px;
-height:260px;
-margin-top:20px;
-background:#111;
-color:#fff;
-border:1px solid #333;
-padding:15px;
+font-size:15px;
 }
 
 .feed{
-padding:20px;
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(350px,1fr));
-gap:20px;
+width:100%;
+display:flex;
+justify-content:center;
+padding-bottom:40px;
 }
 
+/* timeline container */
+#nitterFeed{
+width:95%;
+max-width:1200px;
+}
+
+/* individual tweet cards */
 .tweet{
 background:#111;
 border:1px solid #222;
-padding:15px;
 border-radius:10px;
+padding:12px;
+margin-bottom:12px;
 }
 
 .tweet a{
 color:#1da1f2;
 text-decoration:none;
+word-break:break-word;
 }
 
-@media(max-width:700px){
-.feed{
-grid-template-columns:1fr;
+/* modal */
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.8);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:1000;
 }
+
+.modal-content{
+background:#111;
+padding:20px;
+border-radius:12px;
+max-width:700px;
+width:90%;
 }
+
+.modal img{
+width:100%;
+border-radius:10px;
+}
+
+textarea{
+width:100%;
+height:320px;
+background:#000;
+color:#fff;
+border:1px solid #333;
+border-radius:8px;
+padding:10px;
+resize:none;
+margin-bottom:10px;
+}
+
+.close{
+margin-top:10px;
+background:#444;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="top">
+<button onclick="openBoycott()">view boycott info</button>
+<button onclick="openEmail()">email template</button>
+</div>
 
-<h1>#WEWANTMANON</h1>
+<div class="feed">
+<div id="nitterFeed"></div>
+</div>
 
-<button onclick="toggleInfo()">view boycott info</button>
-<button onclick="copyEmail()">copy email template</button>
-<button onclick="sendEmail()">send email</button>
+<div class="modal" id="boycottModal">
+<div class="modal-content">
+<img src="/boycott.png">
+<button class="close" onclick="closeModal('boycottModal')">close</button>
+</div>
+</div>
 
-<br>
+<div class="modal" id="emailModal">
+<div class="modal-content">
 
-<textarea id="emailTemplate">
-
+<textarea id="emailText" readonly>
 EMAIL TO: hxg@hybecorp.com
 
 SUBJECT : Request for Clarification and Transparency Regarding Manon
 
 ______________
 
-Dear Hybe  and Geffen Records,
+Dear Hybe and Geffen Records,
 
 I am writing as a concerned supporter of KATSEYE about the recent announcement of Manon’s temporary hiatus.
 
@@ -113,64 +163,52 @@ We look forward to your prompt response and clarification.
 Sincerely,
 
 [Your Name]
-
 </textarea>
 
+<button onclick="copyEmail()">copy email</button>
+<button class="close" onclick="closeModal('emailModal')">close</button>
+
+</div>
 </div>
 
-<div class="feed" id="feed"></div>
-
 <script>
-
+// modals
+function openBoycott(){ document.getElementById("boycottModal").style.display="flex" }
+function openEmail(){ document.getElementById("emailModal").style.display="flex" }
+function closeModal(id){ document.getElementById(id).style.display="none" }
 function copyEmail(){
-const text=document.getElementById("emailTemplate").value
-navigator.clipboard.writeText(text)
-alert("email template copied")
+const text=document.getElementById("emailText")
+text.select()
+document.execCommand("copy")
+alert("email copied")
 }
 
-function sendEmail(){
-const subject=encodeURIComponent("Request for Clarification and Transparency Regarding Manon")
-window.location.href="mailto:hxg@hybecorp.com?subject="+subject
+// fetch and display nitter feed
+async function loadNitter(){
+  const rss="https://nitter.tiekoetter.com/search/rss?q=%23WEWANTMANON"
+  try{
+    const res=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(rss))
+    const txt=await res.text()
+    const parser=new DOMParser()
+    const xml=parser.parseFromString(txt,"text/xml")
+    const items=[...xml.querySelectorAll("item")]
+    const feed=document.getElementById("nitterFeed")
+    feed.innerHTML=""
+    items.slice(0,50).forEach(item=>{
+      const title=item.querySelector("title").textContent
+      const link=item.querySelector("link").textContent
+      const div=document.createElement("div")
+      div.className="tweet"
+      div.innerHTML=`<p>${title}</p><a href="${link}" target="_blank">view tweet</a>`
+      feed.appendChild(div)
+    })
+  }catch(e){
+    console.error("failed loading nitter feed",e)
+  }
 }
 
-async function loadTweets(){
-
-const rss="https://nitter.tiekoetter.com/search/rss?q=%23WEWANTMANON"
-
-const res=await fetch(
-"https://api.allorigins.win/raw?url="+encodeURIComponent(rss)
-)
-
-const text=await res.text()
-
-const parser=new DOMParser()
-const xml=parser.parseFromString(text,"text/xml")
-
-const items=[...xml.querySelectorAll("item")]
-
-const feed=document.getElementById("feed")
-
-items.slice(0,30).forEach(item=>{
-
-const title=item.querySelector("title").textContent
-const link=item.querySelector("link").textContent
-
-const div=document.createElement("div")
-div.className="tweet"
-
-div.innerHTML=`
-<p>${title}</p>
-<a href="${link}" target="_blank">view tweet</a>
-`
-
-feed.appendChild(div)
-
-})
-
-}
-
-loadTweets()
-
+// load on page start
+loadNitter()
 </script>
 
 </body>
