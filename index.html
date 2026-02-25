@@ -1,226 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WE WANT MANON</title>
-<link rel="icon" href="/favicon.ico">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KATSEYE IS SIX</title>
 <style>
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,sans-serif;
-  background:#000;
-  color:#fff;
-}
-
-.top{
-  margin:30px 0;
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
-button{
-  background:#1d9bf0;
-  border:none;
-  padding:12px 18px;
-  border-radius:10px;
-  color:white;
-  font-weight:600;
-  cursor:pointer;
-  font-size:15px;
-}
-
-.feed{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding-bottom:40px;
-  gap:12px;
-}
-
-.tweet{
-  background:#111;
-  border-radius:12px;
-  padding:15px;
-  max-width:600px;
-  width:90%;
-}
-
-.tweet a{
-  color:#1d9bf0;
-  text-decoration:none;
-}
-
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,.8);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
-}
-
-.modal-content{
-  background:#111;
-  padding:20px;
-  border-radius:12px;
-  max-width:700px;
-  width:90%;
-}
-
-.modal img{
-  width:100%;
-  border-radius:10px;
-}
-
-textarea{
-  width:100%;
-  height:320px;
-  background:#000;
-  color:#fff;
-  border:1px solid #333;
-  border-radius:8px;
-  padding:10px;
-  resize:none;
-  margin-bottom:10px;
-}
-
-.close{
-  margin-top:10px;
-  background:#444;
-}
-
-@media (min-width:768px){
-  .feed{
-    flex-direction:row;
-    flex-wrap:wrap;
-    justify-content:center;
+  /* katseye dark theme colors */
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0d0d0d; /* deep dark background */
+    color: #00ffcc; /* katseye accent */
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 4rem;
+    letter-spacing: 2px;
   }
-  .tweet{
-    width:30%;
+
+  /* subtle animated glow effect */
+  h1 {
+    text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 30px #00ffcc;
+    animation: glow 2s infinite alternate;
   }
-}
+
+  @keyframes glow {
+    from { text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc, 0 0 15px #00ffcc; }
+    to { text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc, 0 0 60px #00ffcc; }
+  }
 </style>
 </head>
-
 <body>
-
-<div class="top">
-<button onclick="openBoycott()">view boycott info</button>
-<button onclick="openEmail()">email template</button>
-</div>
-
-<div class="feed" id="feed">
-<!-- tweets will be appended here -->
-</div>
-
-<div class="modal" id="boycottModal">
-<div class="modal-content">
-<img src="/boycott.png">
-<button class="close" onclick="closeModal('boycottModal')">close</button>
-</div>
-</div>
-
-<div class="modal" id="emailModal">
-<div class="modal-content">
-<textarea id="emailText" readonly>
-EMAIL TO: hxg@hybecorp.com
-
-SUBJECT : Request for Clarification and Transparency Regarding Manon
-
-______________
-
-Dear Hybe and Geffen Records,
-
-I am writing as a concerned supporter of KATSEYE about the recent announcement of Manon’s temporary hiatus.
-
-It has come to the attention of many fans that Manon recently engaged with an Instagram reel discussing her hiatus, racism, and the mistreatment of Black members in girl groups. The implications of this interaction, combined with the lack of clarity in the company’s first statement, have left many supporters confused, concerned, and seeking transparency.
-
-We respectfully ask that Geffen Records and HYBE provide a clear and detailed explanation about the circumstances of this hiatus. Transparency is essential in keeping trust between the company, the artists, and the global fanbase.
-
-As supporters of KATSEYE, we believe that every member deserves proper protection, fair representation, and a safe working environment. Any concerns related to racism, unequal treatment, or lack of support must be addressed directly and responsibly.
-
-We respectfully urge the company to:
-
-• Provide a comprehensive and transparent statement
-
-• Confirm that Manon is being fully supported and protected
-
-• Address concerns about fair treatment and artist welfare
-
-We stand for all six members of KATSEYE. We stand for fairness, accountability, and the well-being of the artists.
-
-We look forward to your prompt response and clarification.
-
-Sincerely,
-
-[Your Name]
-</textarea>
-
-<button onclick="copyEmail()">copy email</button>
-<button class="close" onclick="closeModal('emailModal')">close</button>
-
-</div>
-</div>
-
-<script>
-function openBoycott(){
-  document.getElementById("boycottModal").style.display="flex"
-}
-
-function openEmail(){
-  document.getElementById("emailModal").style.display="flex"
-}
-
-function closeModal(id){
-  document.getElementById(id).style.display="none"
-}
-
-function copyEmail(){
-  const text=document.getElementById("emailText")
-  text.select()
-  document.execCommand("copy")
-  alert("email copied")
-}
-
-// fetch nitter.net RSS and render tweets
-async function loadTweets(){
-  const feed=document.getElementById("feed")
-  const url="https://nitter.net/search/rss?q=WEWANTMANON"
-  try{
-    const res=await fetch(url)
-    const text=await res.text()
-    const parser=new DOMParser()
-    const xml=parser.parseFromString(text,"application/xml")
-    const items=xml.querySelectorAll("item")
-    if(items.length===0){
-      feed.innerHTML="<p>No tweets found</p>"
-      return
-    }
-    items.forEach(item=>{
-      const title=item.querySelector("title").textContent
-      const link=item.querySelector("link").textContent
-      const div=document.createElement("div")
-      div.className="tweet"
-      div.innerHTML=`<p>${title}</p><a href="${link}" target="_blank">view tweet</a>`
-      feed.prepend(div) // new tweets at top
-    })
-  }catch(e){
-    console.error(e)
-    feed.innerHTML="<p>Failed to load tweets</p>"
-  }
-}
-
-loadTweets()
-</script>
-
+  <h1>coming soon</h1>
 </body>
 </html>
