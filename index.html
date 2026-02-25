@@ -5,51 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KATSEYE IS SIX</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBw5Caa7Ux8N2bXgv8NMZ_tZd8Hz7QiEe4",
-    authDomain: "wewantmanon.firebaseapp.com",
-    projectId: "wewantmanon",
-    storageBucket: "wewantmanon.firebasestorage.app",
-    messagingSenderId: "800866392627",
-    appId: "1:800866392627:web:204d634f899b56de712146",
-    measurementId: "G-QQMLZYRKPM"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const counterRef = doc(db, "comingSoon", "clickCounter");
-
-  async function initCounter() {
-    const docSnap = await getDoc(counterRef);
-    if (!docSnap.exists()) {
-      await setDoc(counterRef, { clicks: 0 });
-    }
-  }
-
-  initCounter();
-
-  onSnapshot(counterRef, (docSnap) => {
-    if (docSnap.exists()) {
-      document.getElementById("clicks").textContent = docSnap.data().clicks;
-    }
-  });
-
-  window.incrementClick = async () => {
-    await updateDoc(counterRef, { clicks: increment(1) });
-  };
-</script>
-
 <style>
   body {
     margin: 0;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     background-color: #000;
@@ -57,29 +17,10 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 3rem;
     text-align: center;
-    padding: 20px;
-  }
-
-  button {
-    margin-top: 15px;
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    border: none;
-    background-color: #fff;
-    color: #000;
-    border-radius: 6px;
-  }
-
-  #clicks {
-    margin-top: 10px;
-    font-size: 1.5rem;
   }
 </style>
 </head>
 <body>
   <div>coming soon</div>
-  <button onclick="incrementClick()">click</button>
-  <div>clicks: <span id="clicks">0</span></div>
 </body>
 </html>
